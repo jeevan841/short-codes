@@ -1,3 +1,4 @@
+#qr reader using opencv and pyzbar
 import cv2
 from pyzbar.pyzbar import decode  #this package uses pyzbar and cv2
 
@@ -23,3 +24,65 @@ for obj in decoded_objects:
 cv2.imshow("QR Code", image)
 cv2.waitKey(0)
 cv2.destroyAllWindows()
+
+
+#qr reader using only opencv packages
+import cv2
+
+# Load image
+image = cv2.imread("qr_code.png")
+
+# Create QRCode detector
+detector = cv2.QRCodeDetector()
+
+# Detect and decode
+data, bbox, _ = detector.detectAndDecode(image)
+
+if bbox is not None:
+    print("QR Code detected, data:", data)
+    # Draw bounding box
+    for i in range(len(bbox)):
+        pt1 = tuple(bbox[i][0])
+        pt2 = tuple(bbox[(i + 1) % len(bbox)][0])
+        cv2.line(image, pt1, pt2, color=(255, 0, 0), thickness=2)
+
+    cv2.imshow("QR Code", image)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+else:
+    print("No QR code detected")
+
+
+
+#Using java and zxing
+#Also install Java (ZXing depends on it) and download ZXing Java library.
+
+import zxing
+
+reader = zxing.BarCodeReader()
+barcode = reader.decode("qr_code.png")  # Replace with your image path
+
+if barcode is not None:
+    print("Type:", barcode.format)
+    print("Data:", barcode.parsed)
+else:
+    print("No QR code detected")
+
+
+
+
+
+#Using Pillow with pyzbar (Alternative to OpenCV)
+
+from PIL import Image
+from pyzbar.pyzbar import decode
+
+# Load image using PIL
+img = Image.open("qr_code.png")
+
+# Decode using pyzbar
+decoded = decode(img)
+
+for obj in decoded:
+    print("Type:", obj.type)
+    print("Data:", obj.data.decode("utf-8"))
