@@ -1,0 +1,59 @@
+#bifunctional qr reader using opencv
+import cv2
+
+def read_qr_from_image(image_path):
+    detector = cv2.QRCodeDetector()
+    img = cv2.imread(image_path)
+
+    if img is None:
+        print(f"Error: Could not load image {image_path}")
+        return
+
+    data, bbox, _ = detector.detectAndDecode(img)
+    if data:
+        print("QR Code from image:", data)
+        if bbox is not None:
+            for i in range(len(bbox)):
+                pt1 = tuple(bbox[i][0])
+                pt2 = tuple(bbox[(i + 1) % len(bbox)][0])
+                cv2.line(img, pt1, pt2, (255, 0, 0), 2)
+            cv2.imshow("Image QR Code", img)
+            cv2.waitKey(0)
+            cv2.destroyAllWindows()
+    else:
+        print("No QR code detected in image.")
+
+
+def read_qr_from_camera():
+    detector = cv2.QRCodeDetector()
+    cap = cv2.VideoCapture(0)  # Use 0 or change if you have multiple cameras
+
+    print("Press 'q' to quit the camera stream.")
+    while True:
+        ret, frame = cap.read()
+        if not ret:
+            print("Failed to grab frame from camera.")
+            break
+
+        data, bbox, _ = detector.detectAndDecode(frame)
+        if data:
+            print("QR Code from camera:", data)
+            if bbox is not None:
+                for i in range(len(bbox)):
+                    pt1 = tuple(bbox[i][0])
+                    pt2 = tuple(bbox[(i + 1) % len(bbox)][0])
+                    cv2.line(frame, pt1, pt2, (0, 255, 0), 2)
+
+        cv2.imshow("Live QR Scanner", frame)
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
+
+    cap.release()
+    cv2.destroyAllWindows()
+
+
+# 1. Read from image
+read_qr_from_image("qr_code.png")  # Change to your image path
+
+# 2. Read from camera
+read_qr_from_camera()
