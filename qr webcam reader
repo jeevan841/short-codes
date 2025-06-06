@@ -1,0 +1,28 @@
+import cv2
+from pyzbar.pyzbar import decode
+
+cap = cv2.VideoCapture(0)  # Use webcam
+
+while True:
+    ret, frame = cap.read()
+    if not ret:
+        break
+
+    decoded_objects = decode(frame)
+    for obj in decoded_objects:
+        qr_data = obj.data.decode("utf-8")
+        print("QR Code Data:", qr_data)
+
+        # Draw rectangle around the QR code
+        points = obj.polygon
+        if len(points) == 4:
+            for i in range(4):
+                cv2.line(frame, points[i], points[(i + 1) % 4], (0, 255, 0), 3)
+
+    cv2.imshow("QR Code Scanner", frame)
+
+    if cv2.waitKey(1) & 0xFF == ord("q"):
+        break
+
+cap.release()
+cv2.destroyAllWindows()
