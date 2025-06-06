@@ -1,0 +1,25 @@
+import cv2
+from pyzbar.pyzbar import decode  #this package uses pyzbar and cv2
+
+image = cv2.imread("qr_code.png")  # Replace with your image file path
+
+decoded_objects = decode(image)
+
+for obj in decoded_objects:
+    print("Type:", obj.type)
+    print("Data:", obj.data.decode("utf-8"))
+    print("Position:", obj.rect)
+
+for obj in decoded_objects:
+    points = obj.polygon
+    if len(points) > 4:  # More than four points: use convex hull
+        hull = cv2.convexHull(points, returnPoints=True)
+    else:
+        hull = points
+    n = len(hull)
+    for j in range(0, n):
+        cv2.line(image, tuple(hull[j]), tuple(hull[(j + 1) % n]), (255, 0, 0), 3)
+
+cv2.imshow("QR Code", image)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
