@@ -1,4 +1,4 @@
-#qr code generator using python with pyqrcode and pillow
+#quick response code generator using python with pyqrcode and pillow
 import pyqrcode
 from PIL import image
 link = input("Enter anything to generate QR Code:")
