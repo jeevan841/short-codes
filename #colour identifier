@@ -1,0 +1,55 @@
+#color identifier using pillow
+
+<code>
+from PIL import Image
+
+def analyze_pixel_colors(image_path):
+    """
+    Analyzes the color of pixels in an image.
+
+    Args:
+        image_path (str): The path to the image file.
+    """
+    try:
+        # Open the image using Pillow
+        img = Image.open(image_path)
+        img = img.convert("RGB")  # Ensure image is in RGB format
+
+        # Get the dimensions of the image
+        width, height = img.size
+        print(f"Image dimensions: {width}x{height}")
+
+        # Get the color of a specific pixel ---
+        x_coord, y_coord = 50, 50  # Coordinates of the pixel you want to check
+        if 0 <= x_coord < width and 0 <= y_coord < height:
+            pixel_color = img.getpixel((x_coord, y_coord))
+            print(f"\nColor of pixel at ({x_coord}, {y_coord}): {pixel_color}")
+            # The output will be an RGB tuple, e.g., (255, 0, 0) for red
+
+        # Iterate through all pixels and count color occurrences ---
+        print("\nCounting all unique colors in the image...")
+        color_counts = {}
+
+        # Iterate over each pixel in the image
+        for y in range(height):
+            for x in range(width):
+                pixel_color = img.getpixel((x, y))
+
+                # Increment the count for the color
+                if pixel_color in color_counts:
+                    color_counts[pixel_color] += 1
+                else:
+                    color_counts[pixel_color] = 1
+
+        print(f"Total unique colors found: {len(color_counts)}")
+        
+        # Display the most frequent colors
+        print("\nTop 5 most frequent colors:")
+        sorted_colors = sorted(color_counts.items(), key=lambda item: item[1], reverse=True)
+        for i, (color, count) in enumerate(sorted_colors[:5]):
+            print(f"Color {i+1}: RGB {color} - Count: {count} pixels")
+
+    except FileNotFoundError:
+        print(f"Error: The file at '{image_path}' was not found.")
+    except Exception as e:
+        print(f"An error occurred: {e}")
