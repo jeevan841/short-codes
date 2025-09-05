@@ -86,3 +86,101 @@ decoded = decode(img)
 for obj in decoded:
     print("Type:", obj.type)
     print("Data:", obj.data.decode("utf-8"))
+
+
+in c++
+<code>
+#include <iostream>
+#include <opencv2/opencv.hpp> // Main OpenCV header
+#include <zbar.h>             // Main ZBar header
+
+int main(int argc, char* argv[]) {
+    // Create a ZBar image scanner
+    zbar::ImageScanner scanner;
+    // Configure the scanner to only look for QR codes
+    scanner.set_config(zbar::ZBAR_QRCODE, zbar::ZBAR_CFG_ENABLE, 1);
+
+    // --- Part 1: Read from an image file if provided ---
+    if (argc > 1) {
+        std::string imagePath = argv[1];
+        cv::Mat image = cv::imread(imagePath, cv::IMREAD_GRAYSCALE); // Load image in grayscale
+
+        if (image.empty()) {
+            std::cerr << "Error: Could not open or find the image!" << std::endl;
+            return -1;
+        }
+
+        // Wrap the OpenCV image data in a ZBar image
+        zbar::Image zbar_image(image.cols, image.rows, "Y800", image.data, image.cols * image.rows);
+
+        // Scan the image for QR codes
+        int n = scanner.scan(zbar_image);
+
+        if (n == 0) {
+             std::cout << "No QR codes found in the image." << std::endl;
+        } else {
+            // Print the decoded results
+            for (zbar::Image::SymbolIterator symbol = zbar_image.symbol_begin(); symbol != zbar_image.symbol_end(); ++symbol) {
+                std::cout << "Type: " << symbol->get_type_name() << std::endl;
+                std::cout << "Data: " << symbol->get_data() << std::endl << std::endl;
+            }
+        }
+        return 0; // Exit after processing the image file
+    }
+
+    // --- Part 2: Read from the webcam if no file is provided ---
+    cv::VideoCapture cap(0); // Open the default camera
+    if (!cap.isOpened()) {
+        std::cerr << "Error: Could not open camera!" << std::endl;
+        return -1;
+    }
+
+    std::cout << "Reading QR codes from webcam... Press 'q' to quit." << std::endl;
+
+    while (true) {
+        cv::Mat frame;
+        cap >> frame; // Get a new frame from camera
+
+        if (frame.empty()) {
+            break; // End of video stream
+        }
+
+        cv::Mat gray;
+        cv::cvtColor(frame, gray, cv::COLOR_BGR2GRAY); // Convert to grayscale
+
+        // Wrap the frame data in a ZBar image
+        zbar::Image zbar_image(gray.cols, gray.rows, "Y800", gray.data, gray.cols * gray.rows);
+
+        // Scan the image for QR codes
+        scanner.scan(zbar_image);
+
+        // Extract and draw results on the frame
+        for (zbar::Image::SymbolIterator symbol = zbar_image.symbol_begin(); symbol != zbar_image.symbol_end(); ++symbol) {
+            // Get the location of the QR code
+            std::vector<cv::Point> points;
+            for(int i = 0; i < symbol->get_location_size(); i++) {
+                points.push_back(cv::Point(symbol->get_location_x(i), symbol->get_location_y(i)));
+            }
+
+            // Draw a bounding box around the detected QR code
+            if (points.size() > 3) {
+                 cv::polylines(frame, points, true, cv::Scalar(0, 255, 0), 2);
+            }
+
+            // Print the decoded data on the frame
+            cv::putText(frame, symbol->get_data(), points[0], cv::FONT_HERSHEY_SIMPLEX, 0.8, cv::Scalar(0, 0, 255), 2);
+            
+            // Also print to console
+            std::cout << "Found QR Code: " << symbol->get_data() << std::endl;
+        }
+
+        cv::imshow("QR Code Reader", frame); // Display the frame
+
+        // Wait for 30ms and exit if 'q' is pressed
+        if (cv::waitKey(30) == 'q') {
+            break;
+        }
+    }
+
+    return 0;
+}
