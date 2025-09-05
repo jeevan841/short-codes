@@ -1,0 +1,83 @@
+neural network perceptron using c
+
+<code>
+#include <stdio.h>
+#include <stdlib.h>
+
+// The Perceptron model
+typedef struct {
+    double* weights;
+    double bias;
+    double learning_rate;
+} Perceptron;
+
+// Create and initialize the perceptron
+Perceptron* create_perceptron(int num_inputs, double lr) {
+    Perceptron* p = (Perceptron*)malloc(sizeof(Perceptron));
+    p->weights = (double*)malloc(num_inputs * sizeof(double));
+    for (int i = 0; i < num_inputs; i++) {
+        p->weights[i] = ((double)rand() / RAND_MAX) * 2 - 1; // Random weights between -1 and 1
+    }
+    p->bias = ((double)rand() / RAND_MAX) * 2 - 1; // Random bias
+    p->learning_rate = lr;
+    return p;
+}
+
+// Simple step activation function
+int activate(double sum) {
+    return (sum > 0) ? 1 : 0;
+}
+
+// Make a prediction
+int predict(Perceptron* p, int* inputs, int num_inputs) {
+    double sum = p->bias;
+    for (int i = 0; i < num_inputs; i++) {
+        sum += p->weights[i] * inputs[i];
+    }
+    return activate(sum);
+}
+
+// Train the perceptron on one example
+void train(Perceptron* p, int* inputs, int target, int num_inputs) {
+    int prediction = predict(p, inputs, num_inputs);
+    double error = target - prediction;
+
+    // Update weights and bias
+    if (error != 0) {
+        for (int i = 0; i < num_inputs; i++) {
+            p->weights[i] += p->learning_rate * error * inputs[i];
+        }
+        p->bias += p->learning_rate * error;
+    }
+}
+
+int main() {
+    // Training data for logical OR
+    int training_data[4][2] = {{0, 0}, {0, 1}, {1, 0}, {1, 1}};
+    int targets[4] = {0, 1, 1, 1};
+
+    // Create a perceptron with 2 inputs
+    Perceptron* p = create_perceptron(2, 0.1);
+
+    // --- Training Loop ---
+    printf("Training the perceptron to learn OR gate...\n");
+    for (int epoch = 0; epoch < 100; epoch++) {
+        for (int i = 0; i < 4; i++) {
+            train(p, training_data[i], targets[i], 2);
+        }
+    }
+    printf("Training complete.\n\n");
+
+    // --- Testing ---
+    printf("Testing the trained perceptron:\n");
+    for (int i = 0; i < 4; i++) {
+        int* inputs = training_data[i];
+        int prediction = predict(p, inputs, 2);
+        printf("%d OR %d -> %d (Expected: %d)\n", inputs[0], inputs[1], prediction, targets[i]);
+    }
+
+    // Free memory
+    free(p->weights);
+    free(p);
+    return 0;
+}
