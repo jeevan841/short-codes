@@ -53,3 +53,64 @@ def analyze_pixel_colors(image_path):
         print(f"Error: The file at '{image_path}' was not found.")
     except Exception as e:
         print(f"An error occurred: {e}")
+
+
+in c++
+<code>
+#include <iostream>
+#include <string>
+#include <vector> //to detect position on the colour spectrum
+#include <cmath> // For std::pow
+#include <limits> // For std::numeric_limits
+
+struct Color {
+    std::string name;
+    int r, g, b;
+};
+
+const std::vector<Color> PREDEFINED_COLORS = {
+    {"Black", 0, 0, 0},
+    {"White", 255, 255, 255},
+    {"Red", 255, 0, 0},
+    {"Green", 0, 128, 0},
+    {"Blue", 0, 0, 255},
+    {"Yellow", 255, 255, 0},
+    {"Cyan", 0, 255, 255},
+    {"Magenta", 255, 0, 255},
+    {"Orange", 255, 165, 0},
+    {"Purple", 128, 0, 128},
+    {"Gray", 128, 128, 128},
+    {"Brown", 165, 42, 42},
+    {"Pink", 255, 192, 203}
+};
+
+std::string identifyColor(int r, int g, int b) {
+    double minDistance = std::numeric_limits<double>::max();
+    std::string closestColorName = "Unknown";
+
+    for (const auto& color : PREDEFINED_COLORS) {
+        double distance = std::pow(r - color.r, 2) +
+                        std::pow(g - color.g, 2) +
+                        std::pow(b - color.b, 2);
+
+        if (distance < minDistance) {
+            minDistance = distance;
+            closestColorName = color.name;
+        }
+    }
+    return closestColorName;
+}
+
+int main() {
+    int inputR1 = 240, inputG1 = 20, inputB1 = 30;
+    std::string colorName1 = identifyColor(inputR1, inputG1, inputB1);
+    std::cout << "The color (" << inputR1 << ", " << inputG1 << ", " << inputB1 
+              << ") is closest to: " << colorName1 << std::endl;
+
+    int inputR2 = 70, inputG2 = 140, inputB2 = 130;
+    std::string colorName2 = identifyColor(inputR2, inputG2, inputB2);
+    std::cout << "The color (" << inputR2 << ", " << inputG2 << ", " << inputB2 
+              << ") is closest to: " << colorName2 << std::endl;
+
+    return 0;
+}
