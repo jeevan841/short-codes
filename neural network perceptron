@@ -68,7 +68,7 @@ int main() {
     }
     printf("Training complete.\n\n");
 
-    // --- Testing ---
+    // - Testing -
     printf("Testing the trained perceptron:\n");
     for (int i = 0; i < 4; i++) {
         int* inputs = training_data[i];
@@ -76,7 +76,7 @@ int main() {
         printf("%d OR %d -> %d (Expected: %d)\n", inputs[0], inputs[1], prediction, targets[i]);
     }
 
-    // Free memory
+    // Freeing memory
     free(p->weights);
     free(p);
     return 0;
