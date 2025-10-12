@@ -1,5 +1,9 @@
 #scientific calculor using java
 
+
+#this file contains gpt generated code so please double check on the working!
+
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
