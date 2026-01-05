@@ -1,3 +1,4 @@
+1.in python
 #color identifier using pillow
 
 <code>
@@ -55,7 +56,7 @@ def analyze_pixel_colors(image_path):
         print(f"An error occurred: {e}")
 
 
-in c++
+2.in c++
 <code>
 #include <iostream>
 #include <string>
